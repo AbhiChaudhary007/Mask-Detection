@@ -1,10 +1,14 @@
 import cv2
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
-import imutils
+import os
 
-face_cascade = cv2.CascadeClassifier("D:\Python\LB ML\CV\Open CV\Smile\haarcascade_frontalface_default.xml")
+def get_path(path,file):
+    return os.path.join(path, file)
 
+path = os.path.dirname(os.path.abspath(__file__))
+file = 'haarcascade_frontalface_default.xml'
+face_cascade = cv2.CascadeClassifier(get_path(path,file))
 
 def detect(gray, frame):
     faces = face_cascade.detectMultiScale(gray, 1.3,5)
@@ -14,7 +18,8 @@ def detect(gray, frame):
         face = cv2.resize(face,(224,224))
         face = img_to_array(face,dtype='float32')
         face = face.reshape(1,224,224,3)/255.0
-        model = load_model("D:\\Python\\LB ML\\DL\\CNN\\Face_Mask.h5")
+        model_file = "Face_Mask.h5"
+        model = load_model(get_path(path,model_file))
         pred = model.predict(face)
         pred = pred[0,0]
         label = f'{pred*100:2.2f}'
@@ -31,7 +36,6 @@ video = cv2.VideoCapture(0)
 
 while True:
     success,frame = video.read()
-    frame = imutils.resize(frame, width=400)
     if not success:
         break
     else:
